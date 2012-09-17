@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="fugitives">Fugitives</string>
+	<string name="captured">Captured</string>
+	<string name="busted">Busted</string>
+	<string name="still_at_large">Still At Large</string>
+	<string name="add">Add</string>
+	<string name="new_fugitive">New Fugitive</string>
+	<string name="capture">Capture</string>
+	<string name="delete">Delete</string>
+	<string name="save">Save</string>
+	<string name="add_photo">Add Photo</string>
+	<string name="show_on_map">Show on Map</string>
+	<string name="geo_error">GeoLocation Error</string>
+	<string name="geo_error_details">Unable to determine location</string>
+	<string name="busted_location">Busted at</string>
+	
+</resources>
