@@ -13,10 +13,11 @@ function AddWindow() {
 	var tf = Ti.UI.createTextField({
 		height:(Ti.Platform.osname==='android') ? Ti.UI.SIZE : 40,
 		top:50,
-		width:250,
+		width:'250dp',
 		keyboardType:Titanium.UI.KEYBOARD_DEFAULT,
 		returnKeyType:Titanium.UI.RETURNKEY_DONE,
 		borderStyle:Titanium.UI.INPUT_BORDERSTYLE_ROUNDED,
+		autocapitalization: Titanium.UI.TEXT_AUTOCAPITALIZATION_WORDS,
 		hintText:L('fugitive_name')
 	});
 	self.add(tf);
@@ -25,7 +26,7 @@ function AddWindow() {
 	var save = Ti.UI.createButton({
 		title:L('save'),
 		height:Ti.UI.SIZE,
-		width:120,
+		width:'120dp',
 		top:10
 	});
 	save.addEventListener('click', function() {

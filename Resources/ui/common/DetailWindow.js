@@ -1,3 +1,4 @@
+var DetailWindowGlobals = {};
 
 function DetailWindow(_person, containingTab) {
 	var db = require('lib/db');
@@ -10,6 +11,10 @@ function DetailWindow(_person, containingTab) {
 		barColor: '#6d0a0c',
 		layout:'vertical'
 	});
+	
+	//set up protected globals
+	DetailWindowGlobals.person = _person;
+	DetailWindowGlobals.window = self;
 	
 	self.add(Ti.UI.createLabel( {
 			text:(_person.atLarge) ? L('still_at_large') : L('busted'),
@@ -47,9 +52,9 @@ function DetailWindow(_person, containingTab) {
 		});
  
 		alertDialog.addEventListener('click',function(e){
-		    if (e.index == 0) {
+		    if (e.index === 0) {
 		        takePhoto(burglarPhoto, _person);
-		    }else{
+		    }else if(e.index === 1){
 		        browseGallery(burglarPhoto, _person);
 		    }
 		});
@@ -70,6 +75,7 @@ function DetailWindow(_person, containingTab) {
 		captureButton.addEventListener('click', function() {
 			if(Ti.Geolocation.locationServicesEnabled) {
 				Ti.Geolocation.preferredProvider = Ti.Geolocation.PROVIDER_GPS;
+				
 				if(Ti.Platform.osname === "android"){
 					Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
 				}
@@ -78,35 +84,10 @@ function DetailWindow(_person, containingTab) {
 					Ti.Geolocation.purpose = "Track those criminals";
 				}
 				
-				Ti.Geolocation.getCurrentPosition( function(e) {
-					if (e.error)
-				    {
-				        Ti.UI.createAlertDialog({
-				            title:L('geo_error'), 
-				            message:L('geo_error_details')
-				            }).show();
-				        return;
-				    }
-				        
-				    db.bust(_person.id, e.coords.latitude, e.coords.longitude);
-							
-				    var net = require('lib/network');
-				    net.bustFugitive(Ti.Platform.id, function(_data) {
-				        Ti.UI.createAlertDialog({
-				            message:_data.message
-				        }).show();
-				
-				        //Delay closing for android
-				        if (Ti.Platform.osname == 'android') {
-				            setTimeout(function() {
-				                self.close();
-				            },2000);
-				        }
-				        else {
-				            self.close();
-				        }
-				    });	
+				Ti.Geolocation.getCurrentPosition(function(e) {
+					//do nothing
 				});
+				Ti.Geolocation.addEventListener('location', updatePosition);
 			}
 			else {
 				Ti.UI.createAlertDialog({
@@ -150,6 +131,48 @@ function DetailWindow(_person, containingTab) {
 	self.add(deleteButton);
 	
 	return self;
+}
+
+function updatePosition(e) {
+    if (e.error)
+    {
+        Ti.UI.createAlertDialog({
+            title:L('geo_error'), 
+            message:L('geo_error_details')
+            }).show();
+        return;
+    }
+    
+    var db = require('lib/db');
+    db.bust(DetailWindowGlobals.person.id, e.coords.latitude, e.coords.longitude);
+            
+    var net = require('lib/network');
+    net.bustFugitive(Ti.Platform.id, function(_data) {
+        Ti.UI.createAlertDialog({
+            message:_data.message
+        }).show();
+
+        //Delay closing for android
+        if (Ti.Platform.osname == 'android') {
+            setTimeout(function() {
+                DetailWindowGlobals.window.close();
+            },2000);                                                                        
+        }
+        else {
+            DetailWindowGlobals.window.close();
+        }
+    });
+    
+    var file = Titanium.Filesystem.getFile(Titanium.Filesystem.resourcesDirectory,'audio/Jail.mp3');
+	// load from file object
+	var sound = Titanium.Media.createSound({
+		url:file,
+		preload:true,
+		allowBackground:true
+	});
+	sound.play();
+   
+    Ti.Geolocation.removeEventListener('location', updatePosition);	
 }	
 
 function takePhoto(_burglarPhoto, _person) {

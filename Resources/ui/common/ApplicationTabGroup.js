@@ -20,8 +20,8 @@ function ApplicationTabGroup() {
 	//add tabs to tab group
 	self.addTab(fugitiveTab);
 	self.addTab(capturedTab);
-	
 	return self;
 }
+
 
 module.exports = ApplicationTabGroup;
